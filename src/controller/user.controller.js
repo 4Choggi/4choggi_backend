@@ -20,7 +20,7 @@ const register = asyncHandler(async (req, res) => {
             error: "Email already exists",
         });
     }
-    if (!ROLES.includes(role) || role === ROLES[2]) {
+    if (!ROLES.includes(role) || role === ROLES[2] || role === ROLES[1]) {
         return res.status(400).json({
             error: "Role Invalid",
         });
@@ -151,8 +151,8 @@ const getSignedURLResume = asyncHandler(async (req, res) => {
 });
 
 const addDetailsRegister = asyncHandler(async (req, res) => {
-    let { id, resumeURL, title, yoe, skills, autoApply } = req.body;
-    if (!id || !resumeURL || !title || !yoe || !skills) {
+    let { id, resumeURL, title, yoe, skills, autoApply, github, linkedin, portfolio } = req.body;
+    if (!id || !resumeURL || !title || !yoe || !skills || !github || !linkedin) {
         return res.status(404).json({
             error: "All fields are required",
         });
@@ -176,6 +176,11 @@ const addDetailsRegister = asyncHandler(async (req, res) => {
                 jobPreferences: {
                     title: title,
                     yoe: yoe,
+                },
+                links: {
+                    github: github,
+                    linkedin: linkedin,
+                    portfolio: portfolio === "" ? "" : portfolio,
                 },
                 skills: skillArray,
                 autoApply: autoApply,
