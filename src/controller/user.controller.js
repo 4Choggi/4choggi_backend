@@ -201,10 +201,27 @@ const addDetailsRegister = asyncHandler(async (req, res) => {
     }
 });
 
+const getUserProfile = asyncHandler(async (req, res) => {
+    const user = req.user;
+    try {
+        const userProfile = await User.findById(user.id).select("-password");
+        return res.status(200).json({
+            status: 200,
+            data: userProfile,
+            message: "User Profile Retrieved",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: "Internal Server Error",
+        });
+    }
+});
+
 export {
     register,
     login,
     logout,
     getSignedURLResume,
     addDetailsRegister,
+    getUserProfile,
 };
