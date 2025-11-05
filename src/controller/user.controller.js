@@ -1,6 +1,7 @@
 import { ROLES } from "../constants.js";
 import { User } from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import bucket from "../config/gcs.config.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
@@ -113,8 +114,92 @@ const logout = asyncHandler(async (_, res) => {
     }
 });
 
+const getSignedURLResume = asyncHandler(async (req, res) => {
+    const { id, fileType } = req.body;
+    if (!id || !fileType) {
+        return res.status(404).json({
+            error: "All fields are required",
+        });
+    }
+    const existsUser = await User.findById(id);
+    if (!existsUser) {
+        return res.status(404).json({
+            error: "User does not exists",
+        });
+    }
+    const file = bucket.file(`resumes/${id}/${Date.now()}-${id}`);
+    try {
+        const [uploadURL] = await file.getSignedUrl({
+            version: "v4",
+            action: "write",
+            expires: Date.now() + 15 * 60 * 1000,
+            contentType: fileType, // application/pdf
+        });
+        return res.status(200).json({
+            status: 200,
+            data: {
+                uploadURL: uploadURL,
+                publicURL: `https://storage.googleapis.com/${bucket.name}/${file.name}`,
+            },
+            message: "Upload on Signed URL",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: "Internal Server Error",
+        });
+    }
+});
+
+const addDetailsRegister = asyncHandler(async (req, res) => {
+    let { id, resumeURL, title, yoe, skills, autoApply } = req.body;
+    if (!id || !resumeURL || !title || !yoe || !skills) {
+        return res.status(404).json({
+            error: "All fields are required",
+        });
+    }
+    const existsUser = await User.findById(id);
+    if (!existsUser) {
+        return res.status(404).json({
+            error: "User does not exists",
+        });
+    }
+    if (autoApply === undefined || autoApply === null) {
+        autoApply = existsUser.autoApply;
+    }
+    let skillArray = existsUser.skills;
+    skillArray.push(...skills);
+    try {
+        const user = await User.findByIdAndUpdate(
+            id,
+            {
+                resumeURL: resumeURL,
+                jobPreferences: {
+                    title: title,
+                    yoe: yoe,
+                },
+                skills: skillArray,
+                autoApply: autoApply,
+            },
+            {
+                new: true,
+            }
+        );
+        return res.status(200).json({
+            status: 200,
+            data: user,
+            message: "User Details Added",
+        });
+    } catch (error) {
+        return res.status(500).json({
+            error: "Internal Server Error",
+        });
+    }
+});
+
 export {
     register,
     login,
-    logout
+    logout,
+    getSignedURLResume,
+    addDetailsRegister,
 };
