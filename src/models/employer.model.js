@@ -47,7 +47,13 @@ const employerSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false,
-    }
+    },
+    jobs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "jobs",
+        }
+    ],
 }, {
     timestamps: true,
 });
