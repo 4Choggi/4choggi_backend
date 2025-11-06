@@ -60,6 +60,8 @@ const userSchema = new mongoose.Schema({
     lastLoggedIn: {
         type: Date,
     }
+}, {
+    timestamps: true,
 });
 
 export const User = mongoose.model("users", userSchema);
