@@ -1,7 +1,7 @@
 import express from "express";
 import { register, login, logout, getSignedURLIDCard, addDetailsRegister, getEmployerProfile } from "../controller/employer.controller.js";
 import { verifyToken } from "../middlewares/authEmployer.middleware.js";
-import { createJob } from "../controller/job.controller.js";
+import { createJob, getJobs } from "../controller/job.controller.js";
 
 const router = express.Router();
 
@@ -14,5 +14,6 @@ router.post("/logout", verifyToken, logout);
 router.get("/getEmployerProfile", verifyToken, getEmployerProfile);
 
 router.post("/jobs/createJob", verifyToken, createJob);
+router.get("/jobs/getJobs", verifyToken, getJobs);
 
 export default router;

@@ -63,7 +63,19 @@ const userSchema = new mongoose.Schema({
     },
     lastLoggedIn: {
         type: Date,
-    }
+    },
+    acceptedJobs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "jobs",
+        }
+    ],
+    appliedJobs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "jobs",
+        }
+    ],
 }, {
     timestamps: true,
 });

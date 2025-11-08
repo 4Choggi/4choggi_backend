@@ -65,6 +65,18 @@ const createJob = asyncHandler(async (req, res) => {
     }
 });
 
+const getJobs = asyncHandler(async (req, res) => {
+    const jobs = await Job.find().select("_id title expLevel location requiredSkills jobDescription expiresAt");
+    return res.status(200).json({
+        status: 200,
+        message: "Jobs Fetched",
+        data: {
+            jobs: jobs,
+        },
+    });
+});
+
 export {
     createJob,
+    getJobs,
 };
