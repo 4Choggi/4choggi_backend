@@ -19,8 +19,10 @@ app.get("/", (_, res) => {
 
 import userRouter from "./router/user.router.js";
 import employerRouter from "./router/employer.router.js";
+import adminRouter from "./router/admin.router.js";
 
 app.use("/api/users", userRouter);  
 app.use("/api/employers", employerRouter);
+app.use("/api/admin", adminRouter);
 
 export default app;
