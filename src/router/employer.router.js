@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.post("/register", register);
 router.post("/login", login);
-router.post("/getSignedURLIDCard", verifyToken, getSignedURLIDCard);
-router.post("/addDetailsRegister", verifyToken, addDetailsRegister);
+router.post("/getSignedURLIDCard", getSignedURLIDCard);
+router.post("/addDetailsRegister", addDetailsRegister);
 
 router.post("/logout", verifyToken, logout);
 router.get("/getEmployerProfile", verifyToken, getEmployerProfile);
