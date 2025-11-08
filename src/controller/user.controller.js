@@ -4,6 +4,9 @@ import asyncHandler from "../utils/asyncHandler.js";
 import bucket from "../config/gcs.config.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { extractSummary } from "../utils/axios.js";
+import { Job } from "../models/job.model.js";
+import { matchResumeWithJDList } from "../utils/filterResume.js";
 
 const register = asyncHandler(async (req, res) => {
     const { name, email, password, role } = req.body;
@@ -168,6 +171,7 @@ const addDetailsRegister = asyncHandler(async (req, res) => {
     }
     let skillArray = existsUser.skills;
     skillArray.push(...skills);
+    const summary = await extractSummary(resumeURL);
     try {
         const user = await User.findByIdAndUpdate(
             id,
@@ -184,11 +188,34 @@ const addDetailsRegister = asyncHandler(async (req, res) => {
                 },
                 skills: skillArray,
                 autoApply: autoApply,
-            },
+                resumeSummary: summary,
+            },  
             {
                 new: true,
             }
         );
+        const jobs = await Job.find({
+            isActive: true,
+        });
+        if (jobs) {
+            const verifiedJobs = jobs.map((job) => ({
+                JD_id: job._id,
+                title: job.title,
+                expLevel: job.expLevel,
+                location: job.location,
+                requiredSkills: job.requiredSkills,
+                jobDescription: job.jobDescription,
+            }));
+            const verifiedResume = {
+                _id: user._id,
+                summary: user.resumeSummary,
+                jobPreference: {
+                    title: user.jobPreferences.title,
+                    yoe: user.jobPreferences.yoe,
+                },
+            };
+            await matchResumeWithJDList(verifiedResume, verifiedJobs, user._id);
+        }
         return res.status(200).json({
             status: 200,
             data: user,

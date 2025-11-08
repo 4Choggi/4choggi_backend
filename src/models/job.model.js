@@ -29,6 +29,17 @@ const jobSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    acceptedUsers: [
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "users",
+            },
+            similarityScore: {
+                type: Number,
+            },
+        },
+    ],
 }, {
     timestamps: true,
 });

@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema({
             default: "",
         },
     },
+    resumeSummary: {
+        type: String,
+        default: "",
+    },
     lastLoggedIn: {
         type: Date,
     }

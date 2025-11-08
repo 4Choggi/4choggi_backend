@@ -1,5 +1,7 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { Job } from "../models/job.model.js";
+import { matchJDWithResumeList } from "../utils/filterResume.js";
+import { User } from "../models/user.model.js";
 
 const createJob = asyncHandler(async (req, res) => {
     const { title, expLevel, location, requiredSkills, jobDescription, expiresAt } = req.body;
@@ -20,6 +22,35 @@ const createJob = asyncHandler(async (req, res) => {
         });
         employer.jobs.push(job._id);
         await employer.save();
+        const resumes = await User.find().select("_id resumeSummary jobPreferences");
+        const validResumes = resumes
+            .filter(
+                (resume) =>
+                    resume._id &&
+                    resume.resumeSummary &&
+                    resume.resumeSummary.trim() !== "" &&
+                    resume.jobPreferences &&
+                    resume.jobPreferences.title &&
+                    resume.jobPreferences.yoe &&
+                    resume.jobPreferences.title.trim() !== "" &&
+                    resume.jobPreferences.yoe.trim() !== ""
+            )
+            .map((resume) => ({
+                summary: resume.resumeSummary.trim(),
+                jobPreference: {
+                    title: resume.jobPreferences.title.trim(),
+                    yoe: resume.jobPreferences.yoe.trim(),
+                },
+                _id: resume._id.toString(),
+            }));
+        const validJobDescription = {
+            title,
+            expLevel,
+            location,
+            requiredSkills,
+            jobDescription,
+        }
+        await matchJDWithResumeList(validJobDescription, validResumes, job._id);
         return res.status(201).json({
             status: 201,
             message: "Job Created",
