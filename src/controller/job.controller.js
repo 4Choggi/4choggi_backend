@@ -1,6 +1,6 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import { Job } from "../models/job.model.js";
-import { matchJDWithResumeList } from "../utils/filterResume.js";
+// import { matchJDWithResumeList } from "../utils/filterResume.js";
 import { User } from "../models/user.model.js";
 
 const createJob = asyncHandler(async (req, res) => {
@@ -50,7 +50,7 @@ const createJob = asyncHandler(async (req, res) => {
             requiredSkills,
             jobDescription,
         }
-        await matchJDWithResumeList(validJobDescription, validResumes, job._id);
+        // await matchJDWithResumeList(validJobDescription, validResumes, job._id);
         return res.status(201).json({
             status: 201,
             message: "Job Created",
